@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StrideWear - Just Step It</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            background-color: #ffffff;
+        }
+
+        /* Nike Color Palette */
+        :root {
+            --nike-black: #000000;
+            --nike-white: #ffffff;
+            --nike-orange: #ffffff;
+            --nike-silver: #444444;
+            --nike-dark-gray: #111111;
+            --nike-light-gray: #222222;
+        }
+
+        /* Header */
+        header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            color: var(--nike-white);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--nike-orange), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: var(--nike-white);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--nike-orange), #000000d5);
+            transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 2px 10px rgba(7, 0, 0, 0.5);
+        }
+
+        .cart-btn {
+            background: linear-gradient(135deg, var(--nike-orange), #000000);
+            border: none;
+            color: var(--nike-white);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cart-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(11, 0, 0, 0.6);
+        }
+
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #080808;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-sidebar.open {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-bottom: 1px solid var(--nike-light-gray);
+            background: #220000;
+            color: var(--nike-white);
+        }
+
+        .cart-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--nike-white);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-cart:hover {
+            color: var(--nike-orange);
+            transform: rotate(90deg);
+        }
+
+        .cart-items {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: var(--nike-dark-gray);
+            font-style: italic;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--nike-light-gray);
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: var(--nike-light-gray);
+            border-radius: 8px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-details p {
+            color: var(--nike-dark-gray);
+            font-size: 0.9rem;
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            color: #0c0000;
+        }
+
+        .cart-footer {
+            padding: 2rem;
+            border-top: 1px solid var(--nike-light-gray);
+            background: var(--nike-light-gray);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--nike-orange), #0c0700);
+            color: var(--nike-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(18, 7, 0, 0.3);
+        }
+
+        /* Checkout Section */
+        .checkout {
+            background: #fff;
+            padding: 6rem 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .checkout h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            color: var(--nike-black);
+        }
+
+        .checkout-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .checkout-form input,
+        .checkout-form select,
+        .checkout-form textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .checkout-form label {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: block;
+            color: #333;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-options label {
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            flex: 1 1 140px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .payment-options input[type='radio'] {
+            margin-right: 0.5rem;
+        }
+
+        .payment-options input[type='radio']:checked + span,
+        .payment-options input[type='radio']:checked + label {
+            border-color: var(--nike-orange);
+            background: #fff7ef;
+        }
+
+        .checkout-summary {
+            background: var(--nike-light-gray);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            color: #222;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--nike-black) 0%, #111111 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--nike-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: heroSlideIn 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.5s forwards;
+            z-index: 2;
+        }
+
+        @keyframes heroSlideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 10vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--nike-white), var(--nike-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+        }
+
+        .hero-content p {
+            font-size: 1.4rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--nike-orange), #0c0000);
+            color: var(--nike-white);
+            padding: 1.2rem 3rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(9, 3, 0, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(5, 0, 0, 0.5);
+        }
+
+        /* Products Section */
+        .products {
+            max-width: 1400px;
+            margin: 8rem auto;
+            padding: 0 3rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, var(--nike-black), var(--nike-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .product-card {
+            background: var(--nike-white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-20px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+        }
+
+        .product-image {
+            height: 300px;
+            background: linear-gradient(135deg, var(--nike-orange), #000000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            color: rgba(255,255,255,0.9);
+            transition: all 0.5s ease;
+        }
+
+        .product-info {
+            padding: 2rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--nike-orange);
+            margin-bottom: 1.5rem;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            background: var(--nike-black);
+            color: var(--nike-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .add-to-cart:hover {
+            background: var(--nike-orange);
+        }
+
+        /* Features Section */
+        .features {
+            background: #000;
+            padding: 8rem 0;
+        }
+
+        .features-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: #111;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(5, 0, 0, 0.1);
+            transition: 0.5s;
+        }
+
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--nike-black);
+            color: var(--nike-white);
+            text-align: center;
+            padding: 5rem 0 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .social-links a {
+            color: var(--nike-white);
+            font-size: 1.5rem;
+            text-decoration: none;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .social-links a:hover {
+            border-color: var(--nike-orange);
+            color: var(--nike-orange);
+        }
+
+        /* Scroll Animation Classes */
+        .page-section {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .page-section.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <nav>
+            <a href="#" class="logo">STRIDE</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#products">Collection</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="cart-btn">Cart (TEST)</button>
+        </nav>
+    </header>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <button class="close-cart">&times;</button>
+        </div>
+        <div class="cart-items">
+            <p class="empty-cart">Your cart is empty</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total: $0.00</span>
+            </div>
+            <button class="checkout-btn">Checkout</button>
+        </div>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>UNLEASH YOUR POWER</h1>
+            <p>Experience the next generation of athletic performance with the new Stride-X series. Designed for the bold.</p>
+            <a href="#products" class="cta-button">Shop the Collection</a>
+        </div>
+    </section>
+
+    <section class="products page-section" id="products">
+        <h2 class="section-title">New Arrivals</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-image">👟</div>
+                <div class="product-info">
+                    <h3>Stride-X Volt</h3>
+                    <div class="product-price">$180.00</div>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">🏃</div>
+                <div class="product-info">
+                    <h3>Swift Runner Pro</h3>
+                    <div class="product-price">$150.00</div>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">⚡</div>
+                <div class="product-info">
+                    <h3>Impact Air</h3>
+                    <div class="product-price">$210.00</div>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="checkout page-section" id="checkout">
+        <h2>Checkout</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">Enter your shipping information and choose a payment method.</p>
+        <form id="checkout-form" class="checkout-form">
+            <div>
+                <label for="shipping-name">Full Name</label>
+                <input id="shipping-name" name="shippingName" type="text" required>
+            </div>
+            <div>
+                <label for="shipping-address">Address</label>
+                <textarea id="shipping-address" name="shippingAddress" rows="3" required></textarea>
+            </div>
+            <div>
+                <label for="shipping-city">City</label>
+                <input id="shipping-city" name="shippingCity" type="text" required>
+            </div>
+            <div>
+                <label for="shipping-zip">Postal / ZIP Code</label>
+                <input id="shipping-zip" name="shippingZip" type="text" required>
+            </div>
+
+            <div class="payment-options">
+                <label><input type="radio" name="payment-method" value="visa" required> Visa</label>
+                <label><input type="radio" name="payment-method" value="amex"> Amex</label>
+                <label><input type="radio" name="payment-method" value="diners"> Diners Club</label>
+                <label><input type="radio" name="payment-method" value="cod"> Cash on Delivery</label>
+            </div>
+
+            <div id="card-details" style="display: none;">
+                <div>
+                    <label for="card-number">Card Number</label>
+                    <input id="card-number" name="cardNumber" type="text" placeholder="1234 5678 9012 3456">
+                </div>
+                <div>
+                    <label for="card-expiry">Expiry</label>
+                    <input id="card-expiry" name="cardExpiry" type="text" placeholder="MM/YY">
+                </div>
+                <div>
+                    <label for="card-cvv">CVV</label>
+                    <input id="card-cvv" name="cardCVV" type="text" placeholder="123">
+                </div>
+            </div>
+
+            <button type="submit" class="checkout-btn">Pay & Place Order</button>
+            <div id="checkout-message" style="margin-top: 1rem; color: #095;"></div>
+        </form>
+        <div class="checkout-summary" id="checkout-summary">
+            <p>Order total will appear here after you click checkout from your cart.</p>
+        </div>
+    </section>
+
+    <section class="features page-section" id="features">
+        <div class="features-grid">
+            <div class="feature">
+                <span class="feature-icon">☁️</span>
+                <h3>Cloud Cushioning</h3>
+                <p>Proprietary foam technology for impact protection and energy return.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌬️</span>
+                <h3>Hyper-Breathable</h3>
+                <p>Advanced mesh upper provides maximum airflow during intense sessions.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🛡️</span>
+                <h3>Infinite Grip</h3>
+                <p>Duraguard rubber outsoles for traction on any surface, rain or shine.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h2 class="logo">STRIDE</h2>
+                <p style="margin-top: 1rem; color: #888;">Pushing the boundaries of performance since 2024.</p>
+            </div>
+            <div class="social-links">
+                <a href="#">IG</a>
+                <a href="#">TW</a>
+                <a href="#">FB</a>
+            </div>
+        </div>
+        <p style="color: #fcf9f9; border-top: 1px solid #222; padding-top: 2rem;">&copy; 2024 StrideWear. All rights reserved.</p>
+    </footer>
+
+    <script>
+        console.log('Script started executing');
+        // Scroll Animation Observer
+        const observerOptions = {
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.page-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Header Background Change on Scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.style.background = 'rgba(17, 17, 17, 0.98)';
+                header.style.padding = '0.5rem 0';
+            } else {
+                header.style.background = 'rgba(17, 17, 17, 0.95)';
+                header.style.padding = '1rem 0';
+            }
+        });
+
+        // Add to Cart Simulation
+        console.log('Script starting...');
+        let cartCount = 0;
+        let cartItems = [];
+        let totalPrice = 0;
+        const cartBtn = document.querySelector('.cart-btn');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const closeCartBtn = document.querySelector('.close-cart');
+        const cartItemsContainer = document.querySelector('.cart-items');
+        const cartTotal = document.querySelector('.cart-total span');
+
+        console.log('Cart elements found:', {
+            cartBtn: !!cartBtn,
+            cartSidebar: !!cartSidebar,
+            closeCartBtn: !!closeCartBtn,
+            cartItemsContainer: !!cartItemsContainer,
+            cartTotal: !!cartTotal
+        });
+
+        // Initialize cart button
+        if (cartBtn) {
+            cartBtn.innerText = 'Cart (0)';
+            console.log('Cart button initialized');
+        }
+
+        console.log('Cart initialization complete');
+
+        // Toggle cart sidebar
+        if (cartBtn) {
+            cartBtn.addEventListener('click', () => {
+                console.log('Cart button clicked');
+                if (cartSidebar) {
+                    cartSidebar.classList.toggle('open');
+                }
+            });
+        }
+
+        if (closeCartBtn) {
+
+            closeCartBtn.addEventListener('click', () => {
+                if (cartSidebar) {
+                    cartSidebar.classList.remove('open');
+                }
+            });
+        }
+
+        // Close cart when clicking outside
+        document.addEventListener('click', (e) => {
+            if (cartSidebar && cartSidebar.classList.contains('open') && !cartSidebar.contains(e.target) && (!cartBtn || !cartBtn.contains(e.target))) {
+                cartSidebar.classList.remove('open');
+            }
+        });
+
+        // Checkout button functionality
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                if (cartItems.length === 0) {
+                    alert('Your cart is empty! Add some items before checking out.');
+                    return;
+                }
+                // Redirect to the checkout section
+                window.location.hash = '#checkout';
+                populateCheckoutSummary();
+            });
+        }
+
+        function populateCheckoutSummary() {
+            const summaryEl = document.getElementById('checkout-summary');
+            if (!summaryEl) return;
+
+            if (cartItems.length === 0) {
+                summaryEl.innerHTML = '<p>Your cart is empty</p>';
+                return;
+            }
+
+            const lines = cartItems.map(item => `<li>${item.name} (Size: ${item.size}) - $${item.price.toFixed(2)}</li>`).join('');
+            summaryEl.innerHTML = `
+                <h4>Order Summary</h4>
+                <ul style="margin-left: 1rem;">${lines}</ul>
+                <p><strong>Total:</strong> $${totalPrice.toFixed(2)}</p>
+            `;
+        }
+
+        const checkoutForm = document.getElementById('checkout-form');
+        const cardDetails = document.getElementById('card-details');
+
+        document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'cod') {
+                    cardDetails.style.display = 'none';
+                } else {
+                    cardDetails.style.display = 'grid';
+                }
+            });
+        });
+
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                if (cartItems.length === 0) {
+                    alert('Cart is empty, add items first.');
+                    return;
+                }
+
+                const paymentMethod = checkoutForm.querySelector('input[name="payment-method"]:checked');
+                if (!paymentMethod) {
+                    alert('Select a payment method.');
+                    return;
+                }
+
+                if (paymentMethod.value !== 'cod') {
+                    const cardNumber = checkoutForm.querySelector('#card-number').value.trim();
+                    const expiry = checkoutForm.querySelector('#card-expiry').value.trim();
+                    const cvv = checkoutForm.querySelector('#card-cvv').value.trim();
+                    if (!cardNumber || !expiry || !cvv) {
+                        alert('Please fill card details for card payments.');
+                        return;
+                    }
+                }
+
+                const name = checkoutForm.querySelector('#shipping-name').value.trim();
+                const address = checkoutForm.querySelector('#shipping-address').value.trim();
+                const city = checkoutForm.querySelector('#shipping-city').value.trim();
+                const zip = checkoutForm.querySelector('#shipping-zip').value.trim();
+                if (!name || !address || !city || !zip) {
+                    alert('Please complete shipping details.');
+                    return;
+                }
+
+                const successMsg = document.getElementById('checkout-message');
+                if (successMsg) {
+                    successMsg.textContent = `Order placed! ${paymentMethod.value.toUpperCase()} selected. Total: $${totalPrice.toFixed(2)}`;
+                }
+
+                // Clear cart
+                cartItems = [];
+                cartCount = 0;
+                totalPrice = 0;
+                if (cartBtn) cartBtn.innerText = 'Cart (0)';
+                updateCartDisplay();
+                populateCheckoutSummary();
+                if (cartSidebar) cartSidebar.classList.remove('open');
+            });
+        }
+
+        // Function to update cart display
+        function updateCartDisplay() {
+            console.log('updateCartDisplay called, items:', cartItems.length);
+            if (cartItems.length === 0) {
+                if (cartItemsContainer) {
+                    cartItemsContainer.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+                }
+            } else {
+                if (cartItemsContainer) {
+                    cartItemsContainer.innerHTML = cartItems.map(item => `
+                        <div class="cart-item">
+                            <div class="cart-item-image">${item.image}</div>
+                            <div class="cart-item-details">
+                                <h3>${item.name}</h3>
+                                <p>Size: ${item.size}</p>
+                            </div>
+                            <div class="cart-item-price">$${item.price}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+            if (cartTotal) {
+                cartTotal.textContent = `Total: $${totalPrice.toFixed(2)}`;
+            }
+        }
+
+        // Check how many add-to-cart buttons we found
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        console.log('Found', addToCartButtons.length, 'add-to-cart buttons');
+
+        addToCartButtons.forEach((button, index) => {
+            console.log('Adding event listener to add-to-cart button', index);
+            button.addEventListener('click', () => {
+                console.log('Add to cart clicked for button', index);
+                // Get product details from the parent element
+                const productCard = button.closest('.product-card');
+                console.log('Product card found:', !!productCard);
+                if (productCard) {
+                    const productName = productCard.querySelector('h3').textContent;
+                    const productPriceText = productCard.querySelector('.product-price').textContent;
+                    const productImage = productCard.querySelector('.product-image').textContent;
+                    console.log('Product details:', { productName, productPriceText, productImage });
+
+                    const productPrice = parseFloat(productPriceText.replace('$', ''));
+                    const productSize = 'M'; // Default size, could be made dynamic
+
+                    console.log('Parsed price:', productPrice);
+
+                    // Add item to cart
+                    cartItems.push({
+                        name: productName,
+                        price: productPrice,
+                        image: productImage,
+                        size: productSize
+                    });
+
+                    cartCount++;
+                    totalPrice += productPrice;
+                    console.log('Cart updated:', { cartCount, totalPrice, cartItems: cartItems.length });
+                    if (cartBtn) {
+                        cartBtn.innerText = `Cart (${cartCount})`;
+                        console.log('Cart button text updated to:', cartBtn.innerText);
+                    }
+                    updateCartDisplay();
+                }
+
+                button.innerText = 'Added!';
+                button.style.background = '#FF5F00';
+                setTimeout(() => {
+                    button.innerText = 'Add to Cart';
+                    button.style.background = '#111111';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
